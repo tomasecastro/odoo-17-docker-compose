@@ -79,14 +79,22 @@ IP_ADDRESS=$(hostname -I | awk '{print $1}')
 # Recargar systemd para reconocer el nuevo servicio
 sudo systemctl daemon-reload
 
+echo "BASE_DIR: $BASE_DIR"
+echo "DESTINATION: $DESTINATION"
+echo "Ruta completa: $BASE_DIR/$DESTINATION/odoo/addons/"
+echo "Archivos .zip encontrados:"
+ls -la $BASE_DIR/$DESTINATION/odoo/addons/*.zip 2>/dev/null || echo "No se encontraron archivos .zip"
+echo "Contenido del directorio addons:"
+ls -la $BASE_DIR/$DESTINATION/odoo/addons/ 2>/dev/null || echo "El directorio no existe"
+
 unzip $BASE_DIR/$DESTINATION/odoo/addons/*.zip -d $BASE_DIR/$DESTINATION/odoo/addons/
 #rm -r $DESTINATION/odoo/addons/*.zip
 
 # Establecer permisos 777 para los directorios específicos
-chmod -R 777 $DESTINATION/odoo/addons $DESTINATION/odoo/etc $DESTINATION/postgresql
+chmod -R 777 $BASE_DIR/$DESTINATION/odoo/addons $BASE_DIR/$DESTINATION/odoo/etc $BASE_DIR/$DESTINATION/postgresql
 
 # Ejecutar Odoo
-docker compose -f $DESTINATION/docker-compose.yml up -d
+docker compose -f $BASE_DIR/$DESTINATION/docker-compose.yml up -d
 
 # Mostrar información de acceso
 echo "Todos los datos de acceso como usuarios y contraseñas están dentro en el archivo $BASE_DIR/$DESTINATION/.env"

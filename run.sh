@@ -3,6 +3,8 @@
 DESTINATION=$1
 PORT=$2
 CHAT=$3
+# Detectar el directorio base donde se ejecuta el script
+BASE_DIR=$(pwd)
 # Obtener el nombre de usuario y grupo actuales
 USER=$(whoami)
 GROUP=$(id -gn $USER)
@@ -87,6 +89,6 @@ chmod -R 777 $DESTINATION/odoo/addons $DESTINATION/odoo/etc $DESTINATION/postgre
 docker compose -f $DESTINATION/docker-compose.yml up -d
 
 # Mostrar información de acceso
-echo "Todas los datos de acceso como usuarios y contraselas estan dentro en el archivo $BASE_DIR/$DESTINATION/.env"
+echo "Todos los datos de acceso como usuarios y contraseñas están dentro en el archivo $BASE_DIR/$DESTINATION/.env"
 echo "Odoo iniciado en http://$IP_ADDRESS:$PORT | Contraseña maestra: minhng.info | Puerto de chat en vivo: $CHAT"
 

@@ -14,7 +14,16 @@ rm -rf $DESTINATION/.git
 # Crear el directorio de PostgreSQL
 mkdir -p $DESTINATION/postgresql
 
-apt-get update && apt-get install -y sudo unzip
+# Instalar Docker, Docker Compose y herramientas necesarias
+apt-get update && apt-get install -y sudo unzip nano docker.io docker-compose
+# Iniciar y habilitar el servicio Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+# Agregar el usuario actual al grupo docker
+sudo usermod -aG docker $USER
+# Crear alias para docker-compose
+echo 'alias docker-compose="docker compose"' >> ~/.bashrc
+source ~/.bashrc
 # Cambiar la propiedad al usuario actual y establecer permisos restrictivos por seguridad
 sudo chown -R $USER:$USER $DESTINATION
 sudo chmod -R 700 $DESTINATION  # Solo el usuario tiene acceso
@@ -27,8 +36,6 @@ else
   # Si ya existe, actualizar el valor
   sed -i "s#^POSTGRES_PASSWORD=.*#POSTGRES_PASSWORD=$(openssl rand -base64 12)#" $DESTINATION/.env
 fi
-
-
 
 # Actualizar las variables ODOO_PORT y ODOO_LONGPOLLING_PORT en el archivo .env
 if ! grep -q "^ODOO_PORT=" $DESTINATION/.env; then
@@ -52,43 +59,20 @@ fi
 find $DESTINATION -type f -exec chmod 644 {} \;
 find $DESTINATION -type d -exec chmod 755 {} \;
 
-
-
 # Ejecutar Odoo
 docker-compose -f $DESTINATION/docker-compose.yml up -d
 
 # Obtener la dirección IP local
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
 
-# Crear el archivo de servicio systemd para s3fs
-cat <<EOF | sudo tee /etc/systemd/system/s3fs-odoo-bucket.service
-[Unit]
-Description=Montar el bucket S3 odoo-bucket usando s3fs
-After=network.target
-
-[Service]
-Restart=always
-User=$USER
-Group=$GROUP
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
 # Recargar systemd para reconocer el nuevo servicio
 sudo systemctl daemon-reload
-
-# Habilitar el servicio para que se inicie automáticamente al arrancar el sistema
-sudo systemctl enable s3fs-odoo-bucket.service
-
-# Iniciar el servicio
-sudo systemctl start s3fs-odoo-bucket.service
 
 unzip -x $DESTINATION/odoo/addons/*.zip
 rm -r $DESTINATION/odoo/addons/*.zip
 
 # Establecer permisos 777 para los directorios específicos
-chmod -R 777 $DESTINATION/odoo/addons $DESTINATION/odoo/etc $DESTINATION/odoo/postgresql
+chmod -R 777 $DESTINATION/odoo/addons $DESTINATION/odoo/etc $DESTINATION/postgresql
 
 # Ejecutar Odoo
 docker-compose -f $DESTINATION/docker-compose.yml up -d

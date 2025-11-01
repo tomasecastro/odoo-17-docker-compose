@@ -14,16 +14,31 @@ rm -rf $DESTINATION/.git
 # Crear el directorio de PostgreSQL
 mkdir -p $DESTINATION/postgresql
 
-# Instalar Docker, Docker Compose y herramientas necesarias
-apt-get update && apt-get install -y sudo unzip nano docker.io docker-compose
+# Instalar dependencias necesarias
+apt-get update && apt-get install -y sudo unzip nano curl apt-transport-https ca-certificates gnupg lsb-release
+
+# Instalar la última versión de Docker desde el repositorio oficial para Debian
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Instalar Docker Compose standalone (para compatibilidad)
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
 # Iniciar y habilitar el servicio Docker
 sudo systemctl start docker
 sudo systemctl enable docker
+
 # Agregar el usuario actual al grupo docker
 sudo usermod -aG docker $USER
-# Crear alias para docker-compose
+
+# Crear enlaces simbólicos y alias para compatibilidad total
+ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
 echo 'alias docker-compose="docker compose"' >> ~/.bashrc
 source ~/.bashrc
+
 # Cambiar la propiedad al usuario actual y establecer permisos restrictivos por seguridad
 sudo chown -R $USER:$USER $DESTINATION
 sudo chmod -R 700 $DESTINATION  # Solo el usuario tiene acceso
@@ -60,7 +75,7 @@ find $DESTINATION -type f -exec chmod 644 {} \;
 find $DESTINATION -type d -exec chmod 755 {} \;
 
 # Ejecutar Odoo
-docker-compose -f $DESTINATION/docker-compose.yml up -d
+docker compose -f $DESTINATION/docker-compose.yml up -d
 
 # Obtener la dirección IP local
 IP_ADDRESS=$(hostname -I | awk '{print $1}')
@@ -75,7 +90,7 @@ rm -r $DESTINATION/odoo/addons/*.zip
 chmod -R 777 $DESTINATION/odoo/addons $DESTINATION/odoo/etc $DESTINATION/postgresql
 
 # Ejecutar Odoo
-docker-compose -f $DESTINATION/docker-compose.yml up -d
+docker compose -f $DESTINATION/docker-compose.yml up -d
 
 # Mostrar información de acceso
 echo "Todas los datos de acceso como usuarios y contraselas estan dentro en el archivo $BASE_DIR/$DESTINATION/.env"

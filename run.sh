@@ -79,7 +79,7 @@ IP_ADDRESS=$(hostname -I | awk '{print $1}')
 # Recargar systemd para reconocer el nuevo servicio
 sudo systemctl daemon-reload
 
-unzip $DESTINATION/odoo/addons/*.zip -d /$DESTINATION/odoo/addons/
+unzip $BASE_DIR/$DESTINATION/odoo/addons/*.zip -d $BASE_DIR/$DESTINATION/odoo/addons/
 #rm -r $DESTINATION/odoo/addons/*.zip
 
 # Establecer permisos 777 para los directorios específicos

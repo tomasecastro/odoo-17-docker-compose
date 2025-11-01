@@ -22,10 +22,6 @@ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Instalar Docker Compose standalone (para compatibilidad)
-curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-
 # Iniciar y habilitar el servicio Docker
 sudo systemctl start docker
 sudo systemctl enable docker
@@ -33,9 +29,7 @@ sudo systemctl enable docker
 # Agregar el usuario actual al grupo docker
 sudo usermod -aG docker $USER
 
-# Crear enlaces simbólicos y alias para compatibilidad total
-ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
-echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.bashrc
+# Crear alias docker-compose para compatibilidad con scripts antiguos
 echo 'alias docker-compose="docker compose"' >> ~/.bashrc
 source ~/.bashrc
 
@@ -84,7 +78,7 @@ IP_ADDRESS=$(hostname -I | awk '{print $1}')
 sudo systemctl daemon-reload
 
 unzip -x $DESTINATION/odoo/addons/*.zip
-rm -r $DESTINATION/odoo/addons/*.zip
+#rm -r $DESTINATION/odoo/addons/*.zip
 
 # Establecer permisos 777 para los directorios específicos
 chmod -R 777 $DESTINATION/odoo/addons $DESTINATION/odoo/etc $DESTINATION/postgresql

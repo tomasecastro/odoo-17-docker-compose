@@ -88,7 +88,7 @@ echo "Contenido del directorio addons:"
 ls -la $BASE_DIR/$DESTINATION/odoo/addons/ 2>/dev/null || echo "El directorio no existe"
 
 unzip $BASE_DIR/$DESTINATION/odoo/addons/*.zip -d $BASE_DIR/$DESTINATION/odoo/addons/
-#rm -r $DESTINATION/odoo/addons/*.zip
+m -r $BASE_DIR/$DESTINATION/odoo/addons/*.zip
 
 # Establecer permisos 777 para los directorios específicos
 chmod -R 777 $BASE_DIR/$DESTINATION/odoo/addons $BASE_DIR/$DESTINATION/odoo/etc $BASE_DIR/$DESTINATION/postgresql

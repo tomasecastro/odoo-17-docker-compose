@@ -1,3 +1,4 @@
+* Actualizado para Debian 13, y la ultima version de Docker
 * Esta implementación esta basada en la realizada por https://github.com/minhng92/odoo-17-docker-compose. 
 * Cambios realizados, actualizacion de la version del docker utilizado.
 * Cambios en el run.sh para mis ajustes personales.

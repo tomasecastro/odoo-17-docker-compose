@@ -79,6 +79,15 @@ GROUP=$(id -gn $USER)
 ## Recargar systemd para reconocer el nuevo servicio
 #sudo systemctl daemon-reload
 #
+# Debug: Mostrar rutas y archivos
+echo "BASE_DIR: $BASE_DIR"
+echo "DESTINATION: $DESTINATION"
+echo "Ruta completa: $BASE_DIR/$DESTINATION/odoo/addons/"
+echo "Archivos .zip encontrados:"
+ls -la $BASE_DIR/$DESTINATION/odoo/addons/*.zip 2>/dev/null || echo "No se encontraron archivos .zip"
+echo "Contenido del directorio addons:"
+ls -la $BASE_DIR/$DESTINATION/odoo/addons/ 2>/dev/null || echo "El directorio no existe"
+
 unzip $BASE_DIR/$DESTINATION/odoo/addons/*.zip -d $BASE_DIR/$DESTINATION/odoo/addons/
 #rm -r $DESTINATION/odoo/addons/*.zip
 
